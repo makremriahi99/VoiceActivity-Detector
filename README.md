@@ -1,57 +1,34 @@
-# Voice Activity Detector (VAD)
+# Rilevatore di Attività Vocale (VAD)
 
-A **Voice Activity Detection** system for male voice in WAV files, using a multi-feature signal analysis approach — no machine learning required.
+Sistema di **Voice Activity Detection** per voce maschile su file WAV, basato sull'analisi multi-caratteristica del segnale audio — nessun machine learning richiesto. Accuratezza: 100% sul dataset di test.
 
-## What it does
+## Come funziona
 
-- Detects segments where a **human voice (male)** is present in an audio file
-- Returns precise **timestamps in milliseconds** (start, end, duration)
-- Achieves **100% accuracy** on the 5-segment test set
+Analizza tre caratteristiche del segnale audio:
+- **RMS** (Root Mean Square) — energia del segnale
+- **ZCR** (Zero Crossing Rate) — frequenza di attraversamento dello zero
+- **F0** (Frequenza fondamentale) — pitch della voce
 
-## Algorithm
+La combinazione di queste tre misure permette di distinguere i segmenti con voce da quelli silenziosi.
 
-Three-feature fusion approach:
+## Come si usa
 
-| Feature | Role |
-|---|---|
-| **RMS Energy** | Detects speech frames by energy level (adaptive threshold: 10th percentile × 2.0) |
-| **Zero Crossing Rate (ZCR)** | Filters unvoiced noise — voiced speech has low ZCR (< 0.15) |
-| **Fundamental Frequency (F0)** | Confirms voice by detecting pitch in the male vocal range (85–180 Hz) |
-
-Post-processing:
-- Median filter (size 7) to smooth label sequence
-- Minimum segment duration: 200 ms (removes brief noise bursts)
-- Gap merging: 300 ms (joins nearby segments of the same utterance)
-
-## Parameters
-
-```python
-FRAME_SIZE_MS = 25         # 25ms analysis window
-FRAME_OVERLAP = 0.5        # 50% overlap
-ENERGY_THRESHOLD = 2.0     # multiplier over noise floor
-MIN_VOICE_F0 = 85 Hz       # male voice lower bound
-MAX_VOICE_F0 = 180 Hz      # male voice upper bound
-MIN_SEGMENT_MS = 200       # discard very short segments
-MERGE_GAP_MS = 300         # merge nearby speech segments
+```bash
+pip install numpy scipy librosa
+python vad.py --input audio.wav
 ```
 
-## Tech stack
+## Tecnologie
 
-- Python 3
-- `numpy` — signal processing
-- `scipy.io.wavfile` — WAV reading
-- `scipy.signal.medfilt` — median filtering
+- `librosa` — analisi audio
+- `numpy` / `scipy` — elaborazione del segnale
+- Algoritmo: sogliatura adattiva multi-feature
 
-## Usage
+## Risultati
 
-```python
-from notebook import rileva_voce
-segments = rileva_voce("audio.wav")
-# [{'start_ms': 1200, 'end_ms': 3400, 'duration_ms': 2200}, ...]
-```
+- Accuratezza: **100%** sul dataset di test
+- Nessuna dipendenza da modelli pre-addestrati
 
-Open `notebook.ipynb` in Google Colab or Jupyter for the full walkthrough.
+## Tag
 
-## Topics
-
-`python` `audio-processing` `voice-activity-detection` `vad` `signal-processing` `speech` `numpy`
+`python` `audio` `voice-activity-detection` `signal-processing` `librosa` `numpy` `speech`
